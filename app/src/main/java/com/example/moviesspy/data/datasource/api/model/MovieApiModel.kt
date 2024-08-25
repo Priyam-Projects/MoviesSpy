@@ -37,9 +37,11 @@ data class MovieApiModel(
             overview = this.overview,
             homePageImage = Image(
                 url = config.baseUrl + config.smallSize + this.posterPath,
+                movieTitle = title,
             ),
             detailsPageImage = Image(
                 url = config.baseUrl + config.largeSize + this.posterPath,
+                movieTitle = title,
             )
         )
     }
