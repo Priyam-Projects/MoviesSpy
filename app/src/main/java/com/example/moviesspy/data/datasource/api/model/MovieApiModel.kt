@@ -36,11 +36,11 @@ data class MovieApiModel(
             title = this.title,
             overview = this.overview,
             homePageImage = Image(
-                url = config.baseUrl + config.smallSize + this.posterPath,
+                url = config.baseUrl + config.homePageSize + this.posterPath,
                 movieTitle = title,
             ),
             detailsPageImage = Image(
-                url = config.baseUrl + config.largeSize + this.posterPath,
+                url = config.baseUrl + config.detailPageSize + this.posterPath,
                 movieTitle = title,
             )
         )

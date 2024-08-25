@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moviesspy.common.ApiResult
 import com.example.moviesspy.domain.config.ImageConfig
+import com.example.moviesspy.domain.model.Movie
 import com.example.moviesspy.domain.repository.MoviesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,10 +20,14 @@ class HomePageViewModel @Inject constructor(
 
     private val TAG = "HomePageViewMode"
 
-    // TODO: use initial state as a parameter such that it retains, ig maybe using savedInstanceBundle
     private val _uiState = MutableStateFlow<HomePageUiState>(HomePageUiState.Loading(""))
     val uiState = _uiState.asStateFlow()
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
+
     private lateinit var config: ImageConfig
+    private lateinit var allMovies: List<Movie>
 
     init {
         initHomePage()
@@ -31,6 +36,7 @@ class HomePageViewModel @Inject constructor(
     private fun initHomePage() {
         viewModelScope.launch {
             updateImageConfig()
+            println("Nayam updateImageDone done")
             updateTrendingMovies()
         }
     }
@@ -40,6 +46,7 @@ class HomePageViewModel @Inject constructor(
             Log.d(TAG, "Image config not initialized")
             return
         }
+        println("Nayam update trending movies")
         repository.getTrendingMovies(config).also {
             _uiState.value = when (it) {
 
@@ -49,6 +56,7 @@ class HomePageViewModel @Inject constructor(
                     )
                 }
                 is ApiResult.Success -> {
+                    allMovies = it.data
                     HomePageUiState.Success(
                         movies = it.data,
                     )
@@ -68,6 +76,32 @@ class HomePageViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    fun onSearchQueryChange(query: String) {
+        _searchQuery.value = query
+        _uiState.value = HomePageUiState.Loading("")
+
+        val filteredMovies = filterMovies(query)
+        _uiState.value = when {
+            filteredMovies.isEmpty() -> {
+                HomePageUiState.Error("No movies found")
+            }
+            else -> {
+                HomePageUiState.Success(filteredMovies)
+            }
+        }
+    }
+
+    // TODO: Either move these to use cases or use strategy design pattern
+    private fun filterMovies(query: String): List<Movie> {
+        if (query.isBlank()) {
+            return allMovies
+        }
+        val lowerCaseQuery = query.lowercase()
+        return allMovies.filter {
+            it.title.lowercase().contains(lowerCaseQuery)
         }
     }
 

@@ -2,6 +2,6 @@ package com.example.moviesspy.domain.config
 
 data class ImageConfig(
     val baseUrl: String,
-    val smallSize: String,
-    val largeSize: String,
+    val homePageSize: String,
+    val detailPageSize: String,
 )

@@ -1,9 +1,11 @@
 package com.example.moviesspy.presentation.screen.homepage.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
@@ -24,17 +26,18 @@ fun MovieItemUi(
     modifier: Modifier = Modifier,
 ) {
     Column (
-        modifier = modifier,
+        modifier = modifier
+            .clickable { onMovieClick(movie) }
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
         ImageUi(
             image = movie.homePageImage,
             modifier = Modifier
-                .height(Dimens.homePageImageHeight)
-                .width(Dimens.homePageImageWidth)
+                .size(Dimens.homePageImageSize)
         )
-
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = movie.title,
             style = MaterialTheme.typography.titleMedium,

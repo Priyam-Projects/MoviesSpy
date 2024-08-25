@@ -7,13 +7,13 @@ import retrofit2.http.Query
 
 interface MoviesService {
 
-    @GET("/trending/movie/week")
+    @GET("trending/movie/week")
     suspend fun getTrendingMovies(
         @Query("language") language: String,
         @Query("api_key") apiKey: String,
     ): GetTrendingMoviesResponse
 
-    @GET("/configuration/")
+    @GET("configuration")
     suspend fun getImageConfig(
         @Query("api_key") apiKey: String,
     ): GetImageConfigResponse

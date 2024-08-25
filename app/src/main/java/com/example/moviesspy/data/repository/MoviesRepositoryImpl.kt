@@ -9,8 +9,9 @@ import com.example.moviesspy.domain.model.Movie
 import com.example.moviesspy.domain.repository.MoviesRepository
 import retrofit2.HttpException
 import java.io.IOException
+import javax.inject.Inject
 
-class MoviesRepositoryImpl(
+class MoviesRepositoryImpl @Inject constructor(
     private val moviesService: MoviesService,
 ): MoviesRepository {
     private val TAG = "MoviesRepositoryImpl"

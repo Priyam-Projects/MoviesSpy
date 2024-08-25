@@ -1,7 +1,6 @@
 package com.example.moviesspy.presentation.screen.homepage
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,60 +17,87 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.size.Dimension
-import com.example.moviesspy.common.Dimens
+import androidx.navigation.NavController
+import com.example.moviesspy.common.Constants
 import com.example.moviesspy.domain.model.Movie
+import com.example.moviesspy.presentation.screen.Screen
 import com.example.moviesspy.presentation.screen.commonui.ErrorPageUi
+import com.example.moviesspy.presentation.screen.commonui.LoadingUi
+import com.example.moviesspy.presentation.screen.detailspage.DetailsPageViewModel
 import com.example.moviesspy.presentation.screen.homepage.components.MovieItemUi
 import com.example.moviesspy.presentation.screen.homepage.components.SearchBarUi
 
 @Composable
 fun HomePageUi(
     viewModel: HomePageViewModel = hiltViewModel(),
+    navController: NavController,
+    detailsViewModel: DetailsPageViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
 
-    when (uiState) {
-        is HomePageUiState.Success, is HomePageUiState.Loading -> {
-           HomePage(uiState)
-        }
-        is HomePageUiState.Error -> {
-            ErrorPageUi(
-                message = (uiState as HomePageUiState.Error).message
-            )
-        }
-    }
-}
-
-@Composable
-fun HomePage(uiState: HomePageUiState) {
-    Column(
+    Column (
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp)
+            .padding(10.dp)
     ) {
-        SearchBarUi(modifier = Modifier)
-        Spacer(modifier = Modifier.height(40.dp))
+        SearchBarUi(
+            searchQuery = searchQuery,
+            onQueryChange = {
+                viewModel.onSearchQueryChange(it)
+            }
+        )
 
-        if (uiState is HomePageUiState.Success) {
-            MovieGrid(uiState.movies)
-        } else {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
+        Spacer(modifier = Modifier.height(20.dp))
+        HomePage(
+            uiState = uiState,
+            onMovieClick = {
+                detailsViewModel.updateSelectedMovie(it)
+                navController.navigate(Screen.DetailPageScreen.route)
+            },
+        )
+    }
+}
+
+@Composable
+fun HomePage(
+    uiState: HomePageUiState,
+    onMovieClick: (Movie) -> Unit,
+) {
+    when (uiState) {
+        is HomePageUiState.Success -> {
+            MovieGrid(
+                movies = uiState.movies,
+                onMovieClick = onMovieClick,
+            )
+        }
+
+        is HomePageUiState.Loading -> {
+            LoadingUi()
+        }
+
+        is HomePageUiState.Error -> {
+            ErrorPageUi(
+                message = uiState.message
             )
         }
     }
 }
 
 @Composable
-fun MovieGrid(movies: List<Movie>) {
+fun MovieGrid(
+    movies: List<Movie>,
+    onMovieClick: (Movie) -> Unit,
+) {
     LazyVerticalGrid(
-        columns = GridCells.FixedSize(Dimens.homePageImageWidth),
-        contentPadding = PaddingValues(20.dp),
+        columns = GridCells.Fixed(Constants.NO_COLUMNS_MOVIES_GRID),
         modifier = Modifier.fillMaxWidth(),
     ) {
         items(movies) { movie ->
-            MovieItemUi(movie = movie, onMovieClick = {})
+            MovieItemUi(
+                movie = movie,
+                onMovieClick = onMovieClick,
+            )
         }
     }
 }
